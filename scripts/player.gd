@@ -1,85 +1,75 @@
 extends CharacterBody3D
 
-const SPEED = 5.0
-const JUMP_VEL = 4.5
-const MOUSE_SENS = 0.002
+## Orbit camera that works with both mouse drag and touch drag.
+## Pivots around the coin pusher machine.
+
+const ORBIT_SPEED = 0.005
+const ZOOM_SPEED = 0.1
+const MIN_DISTANCE = 0.8
+const MAX_DISTANCE = 3.0
+const MIN_PITCH = -0.3  # slight look-up
+const MAX_PITCH = 1.2   # look down from above
 
 var camera: Camera3D
-var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+var pivot_point := Vector3(0, 1.1, -0.5)  # center of the machine
+var orbit_yaw := 0.0
+var orbit_pitch := 0.6
+var orbit_distance := 1.5
+
+var _dragging := false
+var _drag_touch_index := -1
 
 func _ready():
-	_setup_input()
-
-	var col = CollisionShape3D.new()
-	var capsule = CapsuleShape3D.new()
-	capsule.radius = 0.35
-	capsule.height = 1.8
-	col.shape = capsule
-	add_child(col)
-
+	# No collision shape needed — we're just a camera holder
 	camera = Camera3D.new()
-	camera.position.y = 0.65
 	camera.current = true
 	add_child(camera)
-
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-
-func _setup_input():
-	var keys = {
-		"move_forward": KEY_W,
-		"move_backward": KEY_S,
-		"move_left": KEY_A,
-		"move_right": KEY_D,
-		"jump": KEY_SPACE,
-	}
-	for action in keys:
-		if not InputMap.has_action(action):
-			InputMap.add_action(action)
-			var ev = InputEventKey.new()
-			ev.physical_keycode = keys[action]
-			InputMap.action_add_event(action, ev)
+	_update_camera()
 
 func _unhandled_input(event):
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		rotate_y(-event.relative.x * MOUSE_SENS)
-		camera.rotate_x(-event.relative.y * MOUSE_SENS)
-		camera.rotation.x = clamp(camera.rotation.x, -1.4, 1.4)
+	# Mouse drag to orbit
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			_dragging = event.pressed
+		# Scroll to zoom
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			orbit_distance = max(MIN_DISTANCE, orbit_distance - ZOOM_SPEED)
+			_update_camera()
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			orbit_distance = min(MAX_DISTANCE, orbit_distance + ZOOM_SPEED)
+			_update_camera()
 
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-			_try_insert_coin()
-		else:
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if event is InputEventMouseMotion and _dragging:
+		orbit_yaw -= event.relative.x * ORBIT_SPEED
+		orbit_pitch = clamp(orbit_pitch + event.relative.y * ORBIT_SPEED, MIN_PITCH, MAX_PITCH)
+		_update_camera()
 
-	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		else:
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# Touch drag to orbit
+	if event is InputEventScreenTouch:
+		if event.pressed and _drag_touch_index == -1:
+			# Only start drag if not touching a UI button
+			_drag_touch_index = event.index
+			_dragging = true
+		elif not event.pressed and event.index == _drag_touch_index:
+			_drag_touch_index = -1
+			_dragging = false
 
-func _physics_process(delta):
-	if not is_on_floor():
-		velocity.y -= gravity * delta
+	if event is InputEventScreenDrag and event.index == _drag_touch_index:
+		orbit_yaw -= event.relative.x * ORBIT_SPEED
+		orbit_pitch = clamp(orbit_pitch + event.relative.y * ORBIT_SPEED, MIN_PITCH, MAX_PITCH)
+		_update_camera()
 
-	if Input.is_action_just_pressed("jump") and is_on_floor():
-		velocity.y = JUMP_VEL
+func _update_camera():
+	var offset = Vector3(
+		sin(orbit_yaw) * cos(orbit_pitch),
+		sin(orbit_pitch),
+		cos(orbit_yaw) * cos(orbit_pitch)
+	) * orbit_distance
 
-	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
-	var dir = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	global_position = pivot_point + offset
+	camera.global_position = global_position
+	camera.look_at(pivot_point)
 
-	if dir:
-		velocity.x = dir.x * SPEED
-		velocity.z = dir.z * SPEED
-	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
-		velocity.z = move_toward(velocity.z, 0, SPEED)
-
-	move_and_slide()
-
-func _try_insert_coin():
-	if not GameManager.coin_spawn_point:
-		return
-	var pos = GameManager.coin_spawn_point.global_position
-	pos += Vector3(randf_range(-0.02, 0.02), randf_range(-0.01, 0.01), 0)
-	var impulse = Vector3(randf_range(-0.004, 0.004), randf_range(-0.002, 0.002), -0.015)
-	GameManager.spawn_coin(pos, impulse)
+func _physics_process(_delta):
+	# Override CharacterBody3D — no physics movement needed
+	pass

@@ -48,27 +48,47 @@ func _ready():
 	score_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(score_label)
 
-	# Crosshair
-	var crosshair = Label.new()
-	crosshair.text = "+"
-	crosshair.add_theme_font_size_override("font_size", 28)
-	crosshair.add_theme_color_override("font_color", Color(1, 1, 1, 0.7))
-	crosshair.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	crosshair.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	crosshair.anchor_left = 0.5
-	crosshair.anchor_right = 0.5
-	crosshair.anchor_top = 0.5
-	crosshair.anchor_bottom = 0.5
-	crosshair.offset_left = -15
-	crosshair.offset_right = 15
-	crosshair.offset_top = -15
-	crosshair.offset_bottom = 15
-	crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ui_root.add_child(crosshair)
+	# Drop Coin button
+	var btn_container = CenterContainer.new()
+	btn_container.anchor_left = 0.5
+	btn_container.anchor_right = 0.5
+	btn_container.anchor_top = 1.0
+	btn_container.anchor_bottom = 1.0
+	btn_container.offset_left = -100
+	btn_container.offset_right = 100
+	btn_container.offset_top = -140
+	btn_container.offset_bottom = -20
+	btn_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ui_root.add_child(btn_container)
+
+	var coin_btn = Button.new()
+	coin_btn.text = "DROP COIN"
+	coin_btn.custom_minimum_size = Vector2(180, 80)
+	coin_btn.add_theme_font_size_override("font_size", 28)
+	var btn_style = StyleBoxFlat.new()
+	btn_style.bg_color = Color(0.9, 0.7, 0.1)
+	btn_style.corner_radius_top_left = 16
+	btn_style.corner_radius_top_right = 16
+	btn_style.corner_radius_bottom_left = 16
+	btn_style.corner_radius_bottom_right = 16
+	btn_style.content_margin_left = 20
+	btn_style.content_margin_right = 20
+	btn_style.content_margin_top = 10
+	btn_style.content_margin_bottom = 10
+	coin_btn.add_theme_stylebox_override("normal", btn_style)
+	var btn_hover = btn_style.duplicate()
+	btn_hover.bg_color = Color(1.0, 0.84, 0.2)
+	coin_btn.add_theme_stylebox_override("hover", btn_hover)
+	var btn_pressed = btn_style.duplicate()
+	btn_pressed.bg_color = Color(0.7, 0.55, 0.05)
+	coin_btn.add_theme_stylebox_override("pressed", btn_pressed)
+	coin_btn.add_theme_color_override("font_color", Color(0.1, 0.05, 0))
+	coin_btn.pressed.connect(_on_coin_btn_pressed)
+	btn_container.add_child(coin_btn)
 
 	# Instructions
 	var instructions = Label.new()
-	instructions.text = "LEFT CLICK to launch coins at the wheel!\nEvery 100 points earns a BALL DROP.\nESC to toggle mouse"
+	instructions.text = "Drag to rotate camera\nTap DROP COIN to launch!\nEvery 100 points earns a BALL DROP"
 	instructions.add_theme_font_size_override("font_size", 18)
 	instructions.add_theme_color_override("font_color", Color(1, 1, 1, 0.8))
 	instructions.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -76,8 +96,8 @@ func _ready():
 	instructions.anchor_right = 1.0
 	instructions.anchor_top = 1.0
 	instructions.anchor_bottom = 1.0
-	instructions.offset_top = -80
-	instructions.offset_bottom = -20
+	instructions.offset_top = -200
+	instructions.offset_bottom = -150
 	instructions.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ui_root.add_child(instructions)
 
@@ -145,6 +165,14 @@ func _show_notification(text: String):
 	tw.tween_interval(1.5)
 	tw.tween_property(label, "modulate:a", 0.0, 0.5)
 	tw.tween_callback(label.queue_free)
+
+func _on_coin_btn_pressed():
+	if not coin_spawn_point:
+		return
+	var pos = coin_spawn_point.global_position
+	pos += Vector3(randf_range(-0.02, 0.02), randf_range(-0.01, 0.01), 0)
+	var impulse = Vector3(randf_range(-0.004, 0.004), randf_range(-0.002, 0.002), -0.015)
+	spawn_coin(pos, impulse)
 
 func spawn_coin(pos: Vector3, impulse: Vector3 = Vector3.ZERO):
 	if not main_scene:
