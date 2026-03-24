@@ -4,12 +4,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to deploy (leave empty for current branch)'
-        required: false
-        default: ''
-        type: string
 
 env:
   EXPORT_NAME: coin-pusher
@@ -25,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref }}
+          ref: ${{ github.ref }}
           lfs: true
           fetch-depth: 0
 
@@ -63,7 +57,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch || github.ref }}
+          ref: ${{ github.ref }}
           lfs: true
           fetch-depth: 0
 
