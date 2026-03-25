@@ -10,10 +10,11 @@ var dispensing: bool = false
 var left_dispenser: Node3D
 var right_dispenser: Node3D
 var top_lights: Array[Light3D] = []
+var _jingle_sound: AudioStreamPlayer
 
 func _ready():
 	wheel_body = $WheelBody
-	$BonusZone.body_entered.connect(_on_bonus)
+	get_parent().get_node("BonusZone").body_entered.connect(_on_bonus)
 	left_dispenser = get_parent().get_node("LeftDispenser")
 	right_dispenser = get_parent().get_node("RightDispenser")
 	# Gather top lights for flash effect
@@ -21,6 +22,10 @@ func _ready():
 		var light = get_parent().get_node_or_null(name)
 		if light:
 			top_lights.append(light)
+	_jingle_sound = AudioStreamPlayer.new()
+	_jingle_sound.stream = preload("res://happy-jingle.wav")
+	_jingle_sound.volume_db = -5.0
+	add_child(_jingle_sound)
 
 func _physics_process(delta):
 	wheel_body.rotation.z += rotation_speed * delta
@@ -32,6 +37,7 @@ func _on_bonus(body: Node3D):
 			dispensing = true
 			_dispense_next()
 		_flash_lights_green()
+		_jingle_sound.play()
 
 var _flash_tween: Tween
 

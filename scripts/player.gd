@@ -7,6 +7,7 @@ const INTERACT_RANGE = 3.0
 
 var camera: Camera3D
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+var _zap_sound: AudioStreamPlayer
 
 func _ready():
 	_setup_input()
@@ -24,6 +25,11 @@ func _ready():
 	add_child(camera)
 
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+	_zap_sound = AudioStreamPlayer.new()
+	_zap_sound.stream = preload("res://zap_c_02.wav")
+	_zap_sound.volume_db = -5.0
+	add_child(_zap_sound)
 
 func _setup_input():
 	var keys = {
@@ -110,6 +116,7 @@ func _handle_interact():
 		return
 	if not GameManager.try_shoot_coin():
 		return
+	_zap_sound.play()
 	var pos = GameManager.coin_spawn_point.global_position
 	pos += Vector3(randf_range(-0.02, 0.02), randf_range(-0.01, 0.01), 0)
 	var impulse = Vector3(randf_range(-0.004, 0.004), randf_range(-0.002, 0.002), -0.015)

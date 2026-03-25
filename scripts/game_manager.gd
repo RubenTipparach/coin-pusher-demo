@@ -6,12 +6,13 @@ var score_label: Label
 var dollars_label: Label
 var debug_label: Label
 var score_3d: Label3D
+var coins_3d: Label3D
 var interact_prompt: Label
 var main_scene: Node
 var coin_spawn_point: Node3D
 var coin_scene = preload("res://scenes/coin.tscn")
 var ball_script = preload("res://scripts/ball.gd")
-const MAX_COINS = 1000
+const MAX_COINS = 500
 
 var next_ball_at: int = 50
 var balls_pending: int = 0
@@ -171,15 +172,21 @@ func try_insert_dollar() -> bool:
 	dollars -= 1
 	coins_loaded += 10
 	_update_dollars_label()
+	_update_coins_3d()
 	_show_notification("Loaded 10 coins!")
 	return true
 
 func try_shoot_coin() -> bool:
 	if coins_loaded <= 0:
-		_show_notification("Insert money first!")
+		_show_notification("Out of coins!")
 		return false
 	coins_loaded -= 1
+	_update_coins_3d()
 	return true
+
+func _update_coins_3d():
+	if coins_3d:
+		coins_3d.text = "Coins: " + str(coins_loaded)
 
 func drop_next_ball():
 	if balls_pending <= 0 or not main_scene:
@@ -206,7 +213,6 @@ func _show_notification(text: String):
 	ui_root.add_child(label)
 	var tw = create_tween()
 	tw.tween_interval(1.5)
-	tw.tween_property(label, "modulate:a", 0.0, 0.5)
 	tw.tween_callback(label.queue_free)
 
 func spawn_coin(pos: Vector3, impulse: Vector3 = Vector3.ZERO):

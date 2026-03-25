@@ -3,23 +3,9 @@ extends Node3D
 func _ready():
 	GameManager.main_scene = self
 	GameManager.coin_spawn_point = $Machine/CoinSpawnBox
-	_setup_3d_score()
+	GameManager.score_3d = $Machine/DisplayPanel/Score3D
+	GameManager.coins_3d = $Machine/DisplayPanel/Coins3D
 	_prespawn_coins.call_deferred()
-
-func _setup_3d_score():
-	var label = Label3D.new()
-	label.text = "Score: 0"
-	label.font_size = 48
-	label.pixel_size = 0.001
-	label.modulate = Color(1, 0.84, 0)
-	label.outline_modulate = Color(0, 0, 0)
-	label.outline_size = 8
-	label.billboard = BaseMaterial3D.BILLBOARD_DISABLED
-	label.position = Vector3(0, 1.55, -0.55)
-	label.rotation_degrees = Vector3(0, 0, 0)
-	label.name = "Score3D"
-	$Machine.add_child(label)
-	GameManager.score_3d = label
 
 func _on_score(body: Node3D):
 	if body.is_in_group("coins"):
