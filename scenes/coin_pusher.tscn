@@ -1,9 +1,12 @@
-[gd_scene format=3 uid="uid://3pcg3ntkuwgu"]
+[gd_scene format=3 uid="uid://8m5s44pc8lsn"]
 
 [ext_resource type="Script" uid="uid://dqvgjfag4f2ph" path="res://scripts/main.gd" id="1"]
 [ext_resource type="Script" uid="uid://rbrmljpk032v" path="res://scripts/player.gd" id="2"]
 [ext_resource type="Script" uid="uid://c6lcyubonuhp6" path="res://scripts/spinning_wheel.gd" id="3"]
 [ext_resource type="Script" uid="uid://t4m20l25pps" path="res://scripts/coin_pusher.gd" id="4"]
+[ext_resource type="Texture2D" uid="uid://ct4taeh5oytxp" path="res://Tom_ship_bkg.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://by8p4ohsiu05s" path="res://tom_bkg_2.png" id="6"]
+[ext_resource type="ArrayMesh" uid="uid://2eujcmpvuwuk" path="res://cabinet.obj" id="7"]
 
 [sub_resource type="StandardMaterial3D" id="s1"]
 albedo_color = Color(0.2, 0.2, 0.25, 1)
@@ -25,10 +28,10 @@ ambient_light_energy = 0.4
 albedo_color = Color(0.15, 0.15, 0.18, 1)
 
 [sub_resource type="BoxMesh" id="s6"]
-size = Vector3(0.71, 0.88, 0.85)
+size = Vector3(0.71, 0.88, 0.99)
 
 [sub_resource type="BoxShape3D" id="s7"]
-size = Vector3(0.71, 0.88, 0.85)
+size = Vector3(0.71, 0.88, 0.99)
 
 [sub_resource type="PhysicsMaterial" id="s9"]
 friction = 0.85
@@ -51,10 +54,10 @@ metallic = 0.15
 roughness = 0.02
 
 [sub_resource type="BoxMesh" id="s12"]
-size = Vector3(0.03, 0.93, 1)
+size = Vector3(0.03, 0.93, 1.14)
 
 [sub_resource type="BoxShape3D" id="s13"]
-size = Vector3(0.03, 0.93, 1)
+size = Vector3(0.03, 0.93, 1.14)
 
 [sub_resource type="BoxMesh" id="s23"]
 size = Vector3(0.65, 0.93, 0.008)
@@ -72,16 +75,33 @@ size = Vector3(0.71, 0.93, 0.03)
 size = Vector3(0.71, 0.93, 0.03)
 
 [sub_resource type="BoxMesh" id="s16"]
-size = Vector3(0.71, 0.03, 1.1)
+size = Vector3(0.71, 0.03, 1.24)
 
 [sub_resource type="BoxShape3D" id="s17"]
-size = Vector3(0.71, 0.03, 1.1)
+size = Vector3(0.71, 0.03, 1.24)
 
 [sub_resource type="BoxMesh" id="s35"]
-size = Vector3(0.03, 0.93, 0.2)
+size = Vector3(0.03, 0.93, 0.34)
 
 [sub_resource type="BoxShape3D" id="s36"]
-size = Vector3(0.03, 0.93, 0.2)
+size = Vector3(0.03, 0.93, 0.34)
+
+[sub_resource type="StandardMaterial3D" id="light_bulb_white_mat"]
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 3.0
+
+[sub_resource type="CylinderMesh" id="light_bulb_mesh"]
+top_radius = 0.02
+bottom_radius = 0.02
+height = 0.04
+radial_segments = 8
+
+[sub_resource type="StandardMaterial3D" id="light_bulb_warm_mat"]
+albedo_color = Color(1, 0.85, 0.4, 1)
+emission_enabled = true
+emission = Color(0.8, 0.7, 0.2, 1)
+emission_energy_multiplier = 5.0
 
 [sub_resource type="StandardMaterial3D" id="s38"]
 albedo_color = Color(0.25, 0.25, 0.3, 1)
@@ -91,12 +111,6 @@ emission_energy_multiplier = 0.5
 
 [sub_resource type="BoxMesh" id="s37"]
 size = Vector3(0.06, 0.08, 0.06)
-
-[sub_resource type="BoxMesh" id="s33"]
-size = Vector3(0.63, 0.04, 0.22)
-
-[sub_resource type="BoxShape3D" id="s34"]
-size = Vector3(0.63, 0.04, 0.22)
 
 [sub_resource type="PhysicsMaterial" id="s27"]
 friction = 0.2
@@ -125,7 +139,7 @@ size = Vector3(0.22, 0.09, 0.02)
 size = Vector3(0.22, 0.09, 0.02)
 
 [sub_resource type="BoxShape3D" id="s32"]
-size = Vector3(0.55, 0.55, 0.08)
+size = Vector3(0.28515625, 0.20180663, 0.08)
 
 [sub_resource type="StandardMaterial3D" id="s39"]
 albedo_color = Color(0.55, 0.55, 0.6, 1)
@@ -133,10 +147,10 @@ metallic = 0.7
 roughness = 0.3
 
 [sub_resource type="BoxMesh" id="s40"]
-size = Vector3(0.63, 0.04, 0.25)
+size = Vector3(0.63, 0.04, 0.375)
 
 [sub_resource type="BoxShape3D" id="s41"]
-size = Vector3(0.63, 0.04, 0.25)
+size = Vector3(0.63, 0.04, 0.375)
 
 [sub_resource type="StandardMaterial3D" id="s19"]
 albedo_color = Color(0.12, 0.12, 0.15, 1)
@@ -166,7 +180,32 @@ size = Vector3(0.01, 0.88, 0.18)
 size = Vector3(0.01, 0.88, 0.18)
 
 [sub_resource type="BoxShape3D" id="s21"]
-size = Vector3(0.7, 0.3, 0.12)
+size = Vector3(0.7, 0.39226073, 0.19601563)
+
+[sub_resource type="StandardMaterial3D" id="coin_slot_mat"]
+albedo_color = Color(0.8, 0.7, 0.1, 1)
+metallic = 0.8
+roughness = 0.3
+emission_enabled = true
+emission = Color(0.4, 0.35, 0.05, 1)
+emission_energy_multiplier = 0.5
+
+[sub_resource type="BoxMesh" id="coin_slot_mesh"]
+size = Vector3(0.06, 0.08, 0.02)
+
+[sub_resource type="StandardMaterial3D" id="display_panel_mat"]
+albedo_color = Color(0.02, 0.02, 0.02, 1)
+
+[sub_resource type="BoxMesh" id="display_panel_mesh"]
+size = Vector3(0.25, 0.08, 0.01)
+
+[sub_resource type="StandardMaterial3D" id="cabinet_mat"]
+albedo_texture = ExtResource("5")
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="cabinet_back_mat"]
+albedo_texture = ExtResource("6")
+texture_filter = 0
 
 [node name="Main" type="Node3D" unique_id=638430205]
 script = ExtResource("1")
@@ -196,9 +235,10 @@ environment = SubResource("s4")
 [node name="Machine" type="Node3D" parent="." unique_id=131192629]
 
 [node name="LowerCabinet" type="StaticBody3D" parent="Machine" unique_id=1488638203]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.44, -0.625)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.44, -0.695)
 
 [node name="Mesh" type="MeshInstance3D" parent="Machine/LowerCabinet" unique_id=778167207]
+visible = false
 material_override = SubResource("s5")
 mesh = SubResource("s6")
 
@@ -217,7 +257,7 @@ mesh = SubResource("s10")
 shape = SubResource("s11")
 
 [node name="LeftGlass" type="StaticBody3D" parent="Machine" unique_id=1352458699]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.34, 1.35, -0.55)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.34, 1.35, -0.62)
 
 [node name="Mesh" type="MeshInstance3D" parent="Machine/LeftGlass" unique_id=1518144078]
 transform = Transform3D(0.95925003, 0, 0, 0, 1, 0, 0, 0, 0.81413573, 0.013920724, 3.7670135e-05, 0.09450671)
@@ -228,7 +268,7 @@ mesh = SubResource("s12")
 shape = SubResource("s13")
 
 [node name="RightGlass" type="StaticBody3D" parent="Machine" unique_id=1340642323]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34, 1.35, -0.55)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34, 1.35, -0.62)
 
 [node name="Mesh" type="MeshInstance3D" parent="Machine/RightGlass" unique_id=1120265666]
 transform = Transform3D(0.95925003, 0, 0, 0, 1, 0, 0, 0, 0.81413573, -0.0138549805, 0, 0.09444654)
@@ -249,20 +289,23 @@ mesh = SubResource("s23")
 shape = SubResource("s24")
 
 [node name="BackWall" type="StaticBody3D" parent="Machine" unique_id=820965744]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, -0.96)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, -0.91764396)
 
 [node name="Mesh" type="MeshInstance3D" parent="Machine/BackWall" unique_id=1461864747]
-transform = Transform3D(1.0031118, 0, 0, 0, 1.0031118, 0, 0, 0, 4.5741816, 0, 0, 0)
+transform = Transform3D(1.0031118, 0, 0, 0, 1.0031118, 0, 0, 0, 9.148363, 0, 0, -0.0685)
+visible = false
 material_override = SubResource("s18")
 mesh = SubResource("s14")
 
 [node name="Col" type="CollisionShape3D" parent="Machine/BackWall" unique_id=1751024512]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 5.375, 0, 0, 0)
 shape = SubResource("s15")
 
 [node name="TopCap" type="StaticBody3D" parent="Machine" unique_id=1606133650]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.82, -0.55)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.82, -0.62)
 
 [node name="Mesh" type="MeshInstance3D" parent="Machine/TopCap" unique_id=1799928430]
+visible = false
 material_override = SubResource("s5")
 mesh = SubResource("s16")
 
@@ -270,9 +313,10 @@ mesh = SubResource("s16")
 shape = SubResource("s17")
 
 [node name="LeftSolidBack" type="StaticBody3D" parent="Machine" unique_id=1038796309]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.34, 1.35, -0.95)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.34, 1.35, -1.02)
 
 [node name="Mesh" type="MeshInstance3D" parent="Machine/LeftSolidBack" unique_id=1381229444]
+visible = false
 material_override = SubResource("s5")
 mesh = SubResource("s35")
 
@@ -280,10 +324,11 @@ mesh = SubResource("s35")
 shape = SubResource("s36")
 
 [node name="RightSolidBack" type="StaticBody3D" parent="Machine" unique_id=415798045]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34, 1.35, -0.95)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34, 1.35, -1.02)
 
 [node name="Mesh" type="MeshInstance3D" parent="Machine/RightSolidBack" unique_id=473983864]
 transform = Transform3D(1.4156185, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+visible = false
 material_override = SubResource("s5")
 mesh = SubResource("s35")
 
@@ -295,17 +340,30 @@ transform = Transform3D(1, 0, 0, 0, -3.6199901e-06, 1, 0, -1, -3.6199901e-06, -0
 light_energy = 2.0
 spot_range = 1.5
 
+[node name="Bulb" type="MeshInstance3D" parent="Machine/TopLight1" unique_id=1498329103]
+material_override = SubResource("light_bulb_white_mat")
+mesh = SubResource("light_bulb_mesh")
+
 [node name="TopLight2" type="SpotLight3D" parent="Machine" unique_id=193591681]
 transform = Transform3D(1, 0, 0, 0, -3.6199901e-06, 1, 0, -1, -3.6199901e-06, 0.19961411, 1.7900002, -0.40693092)
 light_energy = 2.0
 spot_range = 1.5
 
+[node name="Bulb" type="MeshInstance3D" parent="Machine/TopLight2" unique_id=452194036]
+material_override = SubResource("light_bulb_white_mat")
+mesh = SubResource("light_bulb_mesh")
+
 [node name="TopLight3" type="SpotLight3D" parent="Machine" unique_id=453211924]
-transform = Transform3D(1, 0, 0, 0, -3.6199901e-06, 1, 0, -1, -3.6199901e-06, 0.0076226294, 1.79, -0.70284647)
-light_color = Color(0.80349445, 0.6964232, 0.2172929, 1)
-light_energy = 7.865
-spot_range = 1.6270832
-spot_angle = 32.871754
+transform = Transform3D(1, 0, 0, 0, -3.6199901e-06, 1, 0, -1, -3.6199901e-06, 0.0076226294, 1.79, -0.66035336)
+light_color = Color(0.96144897, 0.8750404, 0.51280767, 1)
+light_energy = 1.875
+light_volumetric_fog_energy = 0.0
+spot_range = 1.08
+spot_angle = 73.02
+
+[node name="Bulb" type="MeshInstance3D" parent="Machine/TopLight3" unique_id=1686273210]
+material_override = SubResource("light_bulb_warm_mat")
+mesh = SubResource("light_bulb_mesh")
 
 [node name="LeftDispenser" type="Node3D" parent="Machine" unique_id=804282470]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.25, 1.68, -0.6)
@@ -322,14 +380,14 @@ material_override = SubResource("s38")
 mesh = SubResource("s37")
 
 [node name="SpinningWheel" type="Node3D" parent="Machine" unique_id=1712728950]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -0.7653247)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -0.724633)
 script = ExtResource("3")
 
 [node name="WheelBody" type="AnimatableBody3D" parent="Machine/SpinningWheel" unique_id=2100340359]
 physics_material_override = SubResource("s27")
 
 [node name="HubMesh" type="MeshInstance3D" parent="Machine/SpinningWheel/WheelBody" unique_id=404949903]
-transform = Transform3D(1, 0, 0, 0, -7.764926e-06, -0.9999958, 0, 2.1450129, -3.6199751e-06, 0, 0, 0.016552031)
+transform = Transform3D(1, 0, 0, 0, -3.8242848e-05, -0.9999871, 0, 10.564351, -3.6199435e-06, 0, 0, -0.07387406)
 material_override = SubResource("s26")
 mesh = SubResource("s28")
 
@@ -391,11 +449,12 @@ mesh = SubResource("s30")
 transform = Transform3D(0.50001067, 0.86601925, 0, -0.86601925, 0.50001067, 0, 0, 0, 1, 0.07, -0.1212, 0)
 shape = SubResource("s31")
 
-[node name="BonusZone" type="Area3D" parent="Machine/SpinningWheel" unique_id=1036768336]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.08)
+[node name="BonusZone" type="Area3D" parent="Machine" unique_id=1434813192]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, -0.8572902)
 collision_layer = 0
 
-[node name="Col" type="CollisionShape3D" parent="Machine/SpinningWheel/BonusZone" unique_id=1353940064]
+[node name="Col" type="CollisionShape3D" parent="Machine/BonusZone" unique_id=1416772342]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.12100577, 0.06691468)
 shape = SubResource("s32")
 
 [node name="CoinPusher" type="AnimatableBody3D" parent="Machine" unique_id=271466263]
@@ -413,6 +472,7 @@ shape = SubResource("s41")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2239305, -0.5867461)
 
 [node name="Mesh" type="MeshInstance3D" parent="Machine/CoinSpawnBox" unique_id=654799416]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.019104838, 0.19431004)
 material_override = SubResource("s19")
 mesh = SubResource("s20")
 
@@ -431,6 +491,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.44, -0.02)
 
 [node name="Mesh" type="MeshInstance3D" parent="Machine/TroughFront" unique_id=1949112726]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.02498591)
+visible = false
 material_override = SubResource("s5")
 mesh = SubResource("s44")
 
@@ -442,6 +503,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.325, 0.69, -0.11)
 
 [node name="Mesh" type="MeshInstance3D" parent="Machine/TroughLeft" unique_id=949750783]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0019555688, -0.2498262, -0.016459405)
+visible = false
 material_override = SubResource("s5")
 mesh = SubResource("s46")
 
@@ -453,6 +515,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.325, 0.69, -0.11)
 
 [node name="Mesh" type="MeshInstance3D" parent="Machine/TroughRight" unique_id=1758317065]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0019555688, -0.2498262, -0.016459405)
+visible = false
 material_override = SubResource("s5")
 mesh = SubResource("s46")
 
@@ -464,10 +527,44 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, -0.11)
 collision_layer = 0
 
 [node name="Col" type="CollisionShape3D" parent="Machine/ScoreZone" unique_id=219601263]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04613033, -0.014296874)
 shape = SubResource("s21")
+
+[node name="CoinSlot" type="Node3D" parent="Machine" unique_id=1039209901]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.55, -0.02)
+
+[node name="SlotMesh" type="MeshInstance3D" parent="Machine/CoinSlot" unique_id=1391440282]
+material_override = SubResource("coin_slot_mat")
+mesh = SubResource("coin_slot_mesh")
+
+[node name="DisplayPanel" type="MeshInstance3D" parent="Machine" unique_id=153508566]
+transform = Transform3D(1, 0, 0, 0, 1.2135603, 0, 0, 0, 1, 0, 1.6388417, -0.68141526)
+material_override = SubResource("display_panel_mat")
+mesh = SubResource("display_panel_mesh")
+
+[node name="Score3D" type="Label3D" parent="Machine/DisplayPanel" unique_id=212632924]
+transform = Transform3D(1, 0, 0, 0, 0.82402164, 0, 0, 0, 1, 0, -0.012360334, 0.0076373816)
+pixel_size = 0.0008
+modulate = Color(1, 0.84, 0, 1)
+text = "Score: 0"
+font_size = 48
+outline_size = 8
+
+[node name="Coins3D" type="Label3D" parent="Machine/DisplayPanel" unique_id=132664751]
+transform = Transform3D(1, 0, 0, 0, 0.82402164, 0, 0, 0, 1, 0, 0.022833586, 0.0076373816)
+pixel_size = 0.0008
+modulate = Color(0.3, 1, 0.3, 1)
+text = "Coins: 0"
+font_size = 36
+outline_size = 8
 
 [node name="Player" type="CharacterBody3D" parent="." unique_id=421094415]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1.2)
 script = ExtResource("2")
+
+[node name="Cabinet" type="MeshInstance3D" parent="." unique_id=1187234675]
+mesh = ExtResource("7")
+surface_material_override/0 = SubResource("cabinet_mat")
+surface_material_override/1 = SubResource("cabinet_back_mat")
 
 [connection signal="body_entered" from="Machine/ScoreZone" to="." method="_on_score"]

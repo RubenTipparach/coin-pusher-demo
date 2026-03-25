@@ -1,7 +1,7 @@
 extends AnimatableBody3D
 
 var push_speed: float = 0.12
-var push_distance: float = 0.15
+var push_distance: float = 0.09
 var start_z: float
 var direction: float = 1.0
 
