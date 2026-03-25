@@ -3,6 +3,7 @@ extends CharacterBody3D
 const SPEED = 5.0
 const JUMP_VEL = 4.5
 const MOUSE_SENS = 0.002
+const INTERACT_RANGE = 3.0
 
 var camera: Camera3D
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -45,10 +46,12 @@ func _unhandled_input(event):
 		camera.rotate_x(-event.relative.y * MOUSE_SENS)
 		camera.rotation.x = clamp(camera.rotation.x, -1.4, 1.4)
 
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_E:
 		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-			_try_insert_coin()
-		else:
+			_handle_interact()
+
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
@@ -75,9 +78,37 @@ func _physics_process(delta):
 		velocity.z = move_toward(velocity.z, 0, SPEED)
 
 	move_and_slide()
+	_update_interact_prompt()
 
-func _try_insert_coin():
+func _is_aiming_at_coin_slot() -> bool:
+	var coin_slot = get_tree().root.find_child("CoinSlot", true, false)
+	if not coin_slot:
+		return false
+	var dist = camera.global_position.distance_to(coin_slot.global_position)
+	if dist > INTERACT_RANGE:
+		return false
+	var cam_forward = -camera.global_basis.z
+	var to_slot = (coin_slot.global_position - camera.global_position).normalized()
+	return cam_forward.dot(to_slot) > 0.95
+
+func _update_interact_prompt():
+	if not GameManager.interact_prompt:
+		return
+	if _is_aiming_at_coin_slot():
+		GameManager.interact_prompt.text = "E to insert $1"
+		GameManager.interact_prompt.visible = true
+	else:
+		GameManager.interact_prompt.visible = false
+
+func _handle_interact():
+	if _is_aiming_at_coin_slot():
+		GameManager.try_insert_dollar()
+		return
+
+	# Otherwise, shoot a single coin
 	if not GameManager.coin_spawn_point:
+		return
+	if not GameManager.try_shoot_coin():
 		return
 	var pos = GameManager.coin_spawn_point.global_position
 	pos += Vector3(randf_range(-0.02, 0.02), randf_range(-0.01, 0.01), 0)

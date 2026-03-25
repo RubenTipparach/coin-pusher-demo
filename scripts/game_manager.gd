@@ -1,17 +1,21 @@
 extends Node
 
 var score: int = 0
+var dollars: int = 10
 var score_label: Label
+var dollars_label: Label
+var debug_label: Label
+var score_3d: Label3D
+var interact_prompt: Label
 var main_scene: Node
 var coin_spawn_point: Node3D
-var coin_script = preload("res://scripts/coin.gd")
+var coin_scene = preload("res://scenes/coin.tscn")
 var ball_script = preload("res://scripts/ball.gd")
-var bonus_wheel_script = preload("res://scripts/bonus_wheel_ui.gd")
-const MAX_COINS = 350
+const MAX_COINS = 1000
 
-var next_ball_at: int = 100
+var next_ball_at: int = 50
 var balls_pending: int = 0
-var bonus_wheel_active: bool = false
+var coins_loaded: int = 0
 var canvas: CanvasLayer
 var ui_root: Control
 
@@ -37,6 +41,11 @@ func _ready():
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ui_root.add_child(panel)
 
+	var hbox = HBoxContainer.new()
+	hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(hbox)
+
 	score_label = Label.new()
 	score_label.text = "SCORE: 0"
 	score_label.add_theme_font_size_override("font_size", 36)
@@ -44,9 +53,18 @@ func _ready():
 	score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	score_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	score_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	score_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	score_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(score_label)
+	hbox.add_child(score_label)
+
+	dollars_label = Label.new()
+	dollars_label.text = "$10"
+	dollars_label.add_theme_font_size_override("font_size", 36)
+	dollars_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))
+	dollars_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	dollars_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	dollars_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	dollars_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hbox.add_child(dollars_label)
 
 	# Crosshair
 	var crosshair = Label.new()
@@ -68,7 +86,7 @@ func _ready():
 
 	# Instructions
 	var instructions = Label.new()
-	instructions.text = "LEFT CLICK to launch coins at the wheel!\nEvery 100 points earns a BALL DROP.\nESC to toggle mouse"
+	instructions.text = "Press E at coin slot to insert $1 for 10 coins!\nEvery 50 points earns a BALL DROP.\nBall in pit = $10!  ESC to toggle mouse"
 	instructions.add_theme_font_size_override("font_size", 18)
 	instructions.add_theme_color_override("font_color", Color(1, 1, 1, 0.8))
 	instructions.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -85,16 +103,83 @@ func _ready():
 	tween.tween_interval(8.0)
 	tween.tween_property(instructions, "modulate:a", 0.0, 2.0)
 
+	# Debug label (top-right)
+	debug_label = Label.new()
+	debug_label.text = "$ 10 | Coins: 0"
+	debug_label.add_theme_font_size_override("font_size", 20)
+	debug_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.6))
+	debug_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	debug_label.anchor_left = 1.0
+	debug_label.anchor_right = 1.0
+	debug_label.anchor_top = 0.0
+	debug_label.anchor_bottom = 0.0
+	debug_label.offset_left = -250
+	debug_label.offset_right = -10
+	debug_label.offset_top = 65
+	debug_label.offset_bottom = 90
+	debug_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ui_root.add_child(debug_label)
+
+	# Interact prompt (centered, below crosshair)
+	interact_prompt = Label.new()
+	interact_prompt.text = ""
+	interact_prompt.add_theme_font_size_override("font_size", 22)
+	interact_prompt.add_theme_color_override("font_color", Color(1, 1, 1, 0.9))
+	interact_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	interact_prompt.anchor_left = 0.0
+	interact_prompt.anchor_right = 1.0
+	interact_prompt.anchor_top = 0.5
+	interact_prompt.anchor_bottom = 0.5
+	interact_prompt.offset_top = 25
+	interact_prompt.offset_bottom = 55
+	interact_prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	interact_prompt.visible = false
+	ui_root.add_child(interact_prompt)
+
+func _update_debug_label():
+	var coin_count = get_tree().get_nodes_in_group("coins").size()
+	debug_label.text = "$" + str(dollars) + " | Loaded: " + str(coins_loaded) + " | Coins: " + str(coin_count)
+
+func _process(_delta):
+	_update_debug_label()
+
+func _update_dollars_label():
+	dollars_label.text = "$" + str(dollars)
+
 func add_score(amount: int = 1):
 	score += amount
 	score_label.text = "SCORE: " + str(score)
-	# Check for ball rewards
+	if score_3d:
+		score_3d.text = "Score: " + str(score)
 	while score >= next_ball_at:
 		balls_pending += 1
-		next_ball_at += 100
+		next_ball_at += 50
 		_show_notification("BALL DROP!")
 	if balls_pending > 0:
 		drop_next_ball()
+
+func add_dollars(amount: int):
+	dollars += amount
+	_update_dollars_label()
+	if amount > 0:
+		_show_notification("+$" + str(amount) + "!")
+
+func try_insert_dollar() -> bool:
+	if dollars <= 0:
+		_show_notification("No money!")
+		return false
+	dollars -= 1
+	coins_loaded += 10
+	_update_dollars_label()
+	_show_notification("Loaded 10 coins!")
+	return true
+
+func try_shoot_coin() -> bool:
+	if coins_loaded <= 0:
+		_show_notification("Insert money first!")
+		return false
+	coins_loaded -= 1
+	return true
 
 func drop_next_ball():
 	if balls_pending <= 0 or not main_scene:
@@ -104,28 +189,6 @@ func drop_next_ball():
 	ball.set_script(ball_script)
 	ball.position = Vector3(randf_range(-0.08, 0.08), 1.7, randf_range(-0.65, -0.45))
 	main_scene.add_child(ball)
-
-func trigger_bonus_wheel():
-	if bonus_wheel_active:
-		return
-	bonus_wheel_active = true
-	var wheel_ui = Control.new()
-	wheel_ui.set_script(bonus_wheel_script)
-	wheel_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
-	canvas.add_child(wheel_ui)
-	wheel_ui.prize_won.connect(_on_prize)
-	wheel_ui.tree_exited.connect(func(): bonus_wheel_active = false)
-
-func _on_prize(type: String, value: int):
-	match type:
-		"coins":
-			# Rain prize coins onto the platform
-			for i in value:
-				var pos = Vector3(randf_range(-0.20, 0.20), 1.5, randf_range(-0.65, -0.40))
-				call_deferred("spawn_coin", pos)
-		"balls":
-			balls_pending += value
-			drop_next_ball()
 
 func _show_notification(text: String):
 	var label = Label.new()
@@ -152,8 +215,7 @@ func spawn_coin(pos: Vector3, impulse: Vector3 = Vector3.ZERO):
 	var coins = get_tree().get_nodes_in_group("coins")
 	if coins.size() >= MAX_COINS:
 		coins[0].queue_free()
-	var coin = RigidBody3D.new()
-	coin.set_script(coin_script)
+	var coin = coin_scene.instantiate()
 	coin.position = pos
 	main_scene.add_child(coin)
 	if impulse != Vector3.ZERO:
