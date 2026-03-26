@@ -18,8 +18,7 @@ var state: int = 0 # 0=spinning, 1=decelerating, 2=stopped
 signal prize_won(type: String, value: int)
 
 func _ready():
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	tree_exiting.connect(func(): Input.mouse_mode = Input.MOUSE_MODE_CAPTURED)
+	mouse_filter = Control.MOUSE_FILTER_STOP
 
 func _process(delta):
 	match state:
@@ -98,9 +97,10 @@ func _draw():
 	draw_string(font, Vector2(center.x - title_w / 2, center.y - radius - 55), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 36, Color(1, 0.84, 0))
 
 	# State text
+	var is_touch = DisplayServer.is_touchscreen_available()
 	var msg = ""
 	match state:
-		0: msg = "CLICK TO STOP!"
+		0: msg = "TAP TO STOP!" if is_touch else "CLICK TO STOP!"
 		2:
 			var w = _get_winner()
 			msg = "YOU WON: " + segments[w].label + "!"
@@ -108,7 +108,7 @@ func _draw():
 		var mw = font.get_string_size(msg, HORIZONTAL_ALIGNMENT_LEFT, -1, 28).x
 		draw_string(font, Vector2(center.x - mw / 2, center.y + radius + 40), msg, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, Color(1, 0.84, 0))
 	if state == 2:
-		var cont = "Click to continue"
+		var cont = "Tap to continue" if is_touch else "Click to continue"
 		var cw = font.get_string_size(cont, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
 		draw_string(font, Vector2(center.x - cw / 2, center.y + radius + 75), cont, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(0.8, 0.8, 0.8))
 

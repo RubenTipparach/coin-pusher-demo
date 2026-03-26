@@ -1,17 +1,47 @@
 extends CharacterBody3D
 
+## Dual-mode camera: FPS on desktop, orbit on touch/mobile.
+## Uses DisplayServer.is_touchscreen_available() to detect mode.
+
+# FPS settings
 const SPEED = 5.0
 const JUMP_VEL = 4.5
 const MOUSE_SENS = 0.002
 const INTERACT_RANGE = 3.0
 
+# Orbit settings
+const ORBIT_SPEED = 0.005
+const ZOOM_SPEED = 0.1
+const MIN_DISTANCE = 0.8
+const MAX_DISTANCE = 3.0
+const MIN_PITCH = -0.3
+const MAX_PITCH = 1.2
+
 var camera: Camera3D
+var is_touch: bool = false
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _zap_sound: AudioStreamPlayer
 
-func _ready():
-	_setup_input()
+# Orbit state
+var pivot_point := Vector3(0, 1.1, -0.5)
+var orbit_yaw := 0.0
+var orbit_pitch := 0.6
+var orbit_distance := 1.5
+var _dragging := false
+var _drag_touch_index := -1
 
+func _ready():
+	is_touch = DisplayServer.is_touchscreen_available()
+
+	if is_touch:
+		camera = Camera3D.new()
+		camera.current = true
+		add_child(camera)
+		_update_orbit_camera()
+	else:
+		_setup_fps()
+
+func _setup_fps():
 	var col = CollisionShape3D.new()
 	var capsule = CapsuleShape3D.new()
 	capsule.radius = 0.35
@@ -31,6 +61,8 @@ func _ready():
 	_zap_sound.volume_db = -5.0
 	add_child(_zap_sound)
 
+	_setup_input()
+
 func _setup_input():
 	var keys = {
 		"move_forward": KEY_W,
@@ -47,6 +79,13 @@ func _setup_input():
 			InputMap.action_add_event(action, ev)
 
 func _unhandled_input(event):
+	if is_touch:
+		_handle_touch_input(event)
+	else:
+		_handle_fps_input(event)
+
+# --- FPS input ---
+func _handle_fps_input(event):
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		rotate_y(-event.relative.x * MOUSE_SENS)
 		camera.rotate_x(-event.relative.y * MOUSE_SENS)
@@ -66,7 +105,53 @@ func _unhandled_input(event):
 		else:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
+# --- Touch/orbit input ---
+func _handle_touch_input(event):
+	if event is InputEventScreenTouch:
+		if event.pressed and _drag_touch_index == -1:
+			_drag_touch_index = event.index
+			_dragging = true
+		elif not event.pressed and event.index == _drag_touch_index:
+			_drag_touch_index = -1
+			_dragging = false
+
+	if event is InputEventScreenDrag and event.index == _drag_touch_index:
+		orbit_yaw -= event.relative.x * ORBIT_SPEED
+		orbit_pitch = clamp(orbit_pitch + event.relative.y * ORBIT_SPEED, MIN_PITCH, MAX_PITCH)
+		_update_orbit_camera()
+
+	# Also support mouse drag for orbit (desktop testing)
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			_dragging = event.pressed
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			orbit_distance = max(MIN_DISTANCE, orbit_distance - ZOOM_SPEED)
+			_update_orbit_camera()
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			orbit_distance = min(MAX_DISTANCE, orbit_distance + ZOOM_SPEED)
+			_update_orbit_camera()
+
+	if event is InputEventMouseMotion and _dragging:
+		orbit_yaw -= event.relative.x * ORBIT_SPEED
+		orbit_pitch = clamp(orbit_pitch + event.relative.y * ORBIT_SPEED, MIN_PITCH, MAX_PITCH)
+		_update_orbit_camera()
+
+func _update_orbit_camera():
+	var offset = Vector3(
+		sin(orbit_yaw) * cos(orbit_pitch),
+		sin(orbit_pitch),
+		cos(orbit_yaw) * cos(orbit_pitch)
+	) * orbit_distance
+
+	global_position = pivot_point + offset
+	camera.global_position = global_position
+	camera.look_at(pivot_point)
+
 func _physics_process(delta):
+	if is_touch:
+		return
+
+	# FPS physics
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 
